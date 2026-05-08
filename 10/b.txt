@@ -1,0 +1,39 @@
+body{
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.form-box{
+    width:500px;
+    margin:10px auto;
+    padding:20px;
+    display:flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    box-shadow: 0 0 5px gray;
+    height: auto;
+
+}
+
+input ,select , textarea{
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+.phone-content{
+    display: flex;
+    gap: 10px;
+}
+input[type="radio"] , input[type="checkbox"]{
+    width: auto;
+}
+
+input[type="submit"]{
+    background-color: rgb(89, 185, 89);
+    cursor: pointer;
+}
+input[type="submit"]:hover{
+    background-color: rgb(6, 137, 6);
+}
+
