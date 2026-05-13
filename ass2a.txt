@@ -1,0 +1,99 @@
+/*
+Assignment 2(A)
+
+Demonstration of:
+1. fork()
+2. Zombie Process
+3. Orphan Process
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+// Bubble Sort Function
+void sort(int arr[], int n){
+    int i, j, temp;
+
+    for(i = 0; i < n - 1; i++){
+        for(j = 0; j < n - i - 1; j++){
+            if(arr[j] > arr[j + 1]){
+                temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int main(){
+    int n, i;
+
+    printf("Enter number of elements: ");
+    scanf("%d", &n);
+
+    int arr[n];
+
+    printf("Enter elements:\n");
+
+    for(i = 0; i < n; i++)
+        scanf("%d", &arr[i]);
+
+    // Create Child Process
+    pid_t pid = fork();
+
+    // Fork Failed
+    if(pid < 0){
+        printf("Fork Failed\n");
+        exit(1);
+    }
+
+    // ---------------- CHILD PROCESS ----------------
+    else if(pid == 0){
+        printf("\nChild Process ID: %d\n", getpid());
+
+        sort(arr, n);
+
+        printf("Child Sorted Array:\n");
+
+        for(i = 0; i < n; i++)
+            printf("%d ", arr[i]);
+
+        printf("\n");
+
+        // Uncomment below lines for ORPHAN PROCESS
+        /*
+        sleep(10);
+        printf("\nOrphan Process Created");
+        printf("\nNew Parent ID: %d\n", getppid());
+        */
+    }
+
+    // ---------------- PARENT PROCESS ----------------
+    else{
+        printf("\nParent Process ID: %d\n", getpid());
+
+        sort(arr, n);
+
+        printf("Parent Sorted Array:\n");
+
+        for(i = 0; i < n; i++)
+            printf("%d ", arr[i]);
+
+        printf("\n");
+
+        // Uncomment below lines for ZOMBIE PROCESS
+        /*
+        sleep(10);
+        printf("\nZombie Process Created\n");
+        */
+
+        // wait() removes zombie process
+        wait(NULL);
+
+        printf("Child process completed\n");
+    }
+
+    return 0;
+}

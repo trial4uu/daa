@@ -1,0 +1,64 @@
+#include<stdio.h>
+#include<pthread.h>
+#include<semaphore.h>
+#include<unistd.h>
+
+sem_t wrt;
+pthread_mutex_t mutex;
+
+int readcount = 0;
+
+// Reader Function
+void *reader(void *arg)
+{
+    int id = *(int *)arg;
+    pthread_mutex_lock(&mutex);
+    readcount++;
+    if(readcount == 1)
+        sem_wait(&wrt);
+    pthread_mutex_unlock(&mutex);
+    // Reading section
+    printf("\nReader %d is reading", id);
+    sleep(1);
+    pthread_mutex_lock(&mutex);
+    readcount--;
+    if(readcount == 0)
+        sem_post(&wrt);
+
+    pthread_mutex_unlock(&mutex);
+    pthread_exit(NULL);
+}
+
+// Writer Function
+void *writer(void *arg)
+{
+    int id = *(int *)arg;
+    sem_wait(&wrt);
+    // Writing section
+    printf("\nWriter %d is writing", id);
+    sleep(1);
+    sem_post(&wrt);
+    pthread_exit(NULL);
+}
+
+int main()
+{
+    pthread_t r1, r2, w1;
+
+    int a = 1, b = 2, c = 1;
+
+    sem_init(&wrt, 0, 1);
+
+    pthread_mutex_init(&mutex, NULL);
+
+    pthread_create(&r1, NULL, reader, &a);
+    pthread_create(&r2, NULL, reader, &b);
+
+    pthread_create(&w1, NULL, writer, &c);
+
+    pthread_join(r1, NULL);
+    pthread_join(r2, NULL);
+    pthread_join(w1, NULL);
+
+    return 0;
+}

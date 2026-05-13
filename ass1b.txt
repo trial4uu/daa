@@ -1,0 +1,192 @@
+#!/bin/bash
+
+# Initialize menu option variable
+opt=1
+
+# Default address book file name
+fileName="addressbook.txt"
+
+# Loop runs until user selects Exit option (6)
+while [ "$opt" -lt 6 ]
+do
+    # Display menu
+    echo -e "\nChoose one of the Following:"
+    echo "1. Create a New Address Book"
+    echo "2. View Records"
+    echo "3. Insert New Record"
+    echo "4. Delete a Record"
+    echo "5. Modify a Record"
+    echo "6. Exit"
+
+    # Take user choice
+    echo -n "Enter your choice: "
+    read opt
+
+    # Case statement for menu options
+    case $opt in
+
+    # ---------------------------------------------------
+    # OPTION 1 : CREATE NEW ADDRESS BOOK
+    # ---------------------------------------------------
+    1)
+        # Ask user for file name
+        echo -n "Enter filename: "
+        read fileName
+
+        # Check if file already exists
+        if [ -e "$fileName" ]; then
+            # Delete old file
+            rm "$fileName"
+        fi
+
+        # Create header in address book
+        echo -e "NAME\tNUMBER\t\tADDRESS\n===============================" > "$fileName"
+
+        # Variable to continue inserting records
+        cont=1
+
+        # Loop for entering multiple records
+        while [ "$cont" -gt 0 ]
+        do
+            # Read user details
+            echo -n "Enter Name: "
+            read name
+
+            echo -n "Enter Phone Number of $name: "
+            read number
+
+            echo -n "Enter Address of $name: "
+            read address
+
+            # Store record in file
+            echo -e "$name\t$number\t\t$address" >> "$fileName"
+
+            # Ask whether to continue
+            echo -n "Enter 0 to Stop, 1 to Enter next: "
+            read cont
+        done
+        ;;
+
+    # ---------------------------------------------------
+    # OPTION 2 : VIEW RECORDS
+    # ---------------------------------------------------
+    2)
+        # Check if file exists
+        if [ -e "$fileName" ]; then
+
+            # Display file contents
+            echo -e "\n===== Address Book: $fileName ====="
+            cat "$fileName"
+
+        else
+            # Error message if file not found
+            echo "File not found! Please create an address book first."
+        fi
+        ;;
+
+    # ---------------------------------------------------
+    # OPTION 3 : INSERT NEW RECORD
+    # ---------------------------------------------------
+    3)
+        # Check file exists or not
+        if [ ! -e "$fileName" ]; then
+
+            echo "File not found! Please create an address book first."
+
+        else
+            # Read new record details
+            echo -n "Enter Name: "
+            read name
+
+            echo -n "Enter Phone Number of $name: "
+            read number
+
+            echo -n "Enter Address of $name: "
+            read address
+
+            # Append new record to file
+            echo -e "$name\t$number\t\t$address" >> "$fileName"
+
+            echo "Record inserted successfully!"
+        fi
+        ;;
+
+    # ---------------------------------------------------
+    # OPTION 4 : DELETE RECORD
+    # ---------------------------------------------------
+    4)
+        # Check file exists or not
+        if [ ! -e "$fileName" ]; then
+
+            echo "File not found! Please create an address book first."
+
+        else
+            # Ask pattern to delete
+            echo -n "Delete record — Enter Name/Phone Number: "
+            read pattern
+
+            # Remove matching line and store remaining data in temp file
+            grep -v "$pattern" "$fileName" > temp
+
+            # Replace original file with updated file
+            mv temp "$fileName"
+
+            echo "Record deleted (if found)."
+        fi
+        ;;
+
+    # ---------------------------------------------------
+    # OPTION 5 : MODIFY RECORD
+    # ---------------------------------------------------
+    5)
+        # Check file exists or not
+        if [ ! -e "$fileName" ]; then
+
+            echo "File not found! Please create an address book first."
+
+        else
+            # Ask which record to modify
+            echo -n "Modify record — Enter Name/Phone Number: "
+            read pattern
+
+            # Delete old record
+            grep -v "$pattern" "$fileName" > temp
+
+            # Replace old file
+            mv temp "$fileName"
+
+            # Read updated details
+            echo -n "Enter New Name: "
+            read name
+
+            echo -n "Enter Phone Number of $name: "
+            read number
+
+            echo -n "Enter Address of $name: "
+            read address
+
+            # Add updated record
+            echo -e "$name\t$number\t\t$address" >> "$fileName"
+
+            echo "Record modified successfully!"
+        fi
+        ;;
+
+    # ---------------------------------------------------
+    # OPTION 6 : EXIT
+    # ---------------------------------------------------
+    6)
+        echo "Exiting program..."
+
+        # Exit successfully
+        exit 0
+        ;;
+
+    # ---------------------------------------------------
+    # INVALID OPTION
+    # ---------------------------------------------------
+    *)
+        echo "Invalid option! Please try again."
+        ;;
+    esac
+done

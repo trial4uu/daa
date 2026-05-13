@@ -1,0 +1,110 @@
+#include <stdio.h>
+
+int main()
+{
+    int n, i, j, tq;
+    int at[10], bt[10];
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    printf("Enter Arrival Time and Burst Time:\n");
+
+    for(i = 0; i < n; i++)
+        scanf("%d%d", &at[i], &bt[i]);
+
+    // ---------------- SJF PREEMPTIVE ----------------
+
+    int rt1[10], wt1[10], tat1[10];
+    int time = 0, remain = n, small;
+    float avgwt1 = 0, avgtat1 = 0;
+
+    for(i = 0; i < n; i++)
+        rt1[i] = bt[i];
+
+    while(remain != 0){
+        small = -1;
+
+        for(i = 0; i < n; i++){
+            if(at[i] <= time && rt1[i] > 0){
+                if(small == -1 || rt1[i] < rt1[small])
+                    small = i;
+            }
+        }
+
+        if(small == -1){
+            time++;
+            continue;
+        }
+
+        rt1[small]--;
+        time++;
+
+        if(rt1[small] == 0){
+            remain--;
+
+            tat1[small] = time - at[small];
+            wt1[small] = tat1[small] - bt[small];
+
+            avgwt1 += wt1[small];
+            avgtat1 += tat1[small];
+        }
+    }
+
+    printf("\n----- SJF Preemptive -----\n");
+    printf("Process\tWT\tTAT\n");
+
+    for(i = 0; i < n; i++)
+        printf("P%d\t%d\t%d\n", i+1, wt1[i], tat1[i]);
+
+    printf("Average WT = %.2f\n", avgwt1/n);
+    printf("Average TAT = %.2f\n", avgtat1/n);
+
+    // ---------------- ROUND ROBIN ----------------
+    int rt2[10], wt2[10], tat2[10];
+    int remain2 = n;
+    float avgwt2 = 0, avgtat2 = 0;
+
+    printf("\nEnter Time Quantum: ");
+    scanf("%d", &tq);
+
+    for(i = 0; i < n; i++)
+        rt2[i] = bt[i];
+
+    time = 0;
+
+    while(remain2 > 0){
+        for(i = 0; i < n; i++){
+            if(rt2[i] > 0 && at[i] <= time){
+                if(rt2[i] > tq){
+                    time += tq;
+                    rt2[i] -= tq;
+                }
+                else{
+                    time += rt2[i];
+
+                    tat2[i] = time - at[i];
+                    wt2[i] = tat2[i] - bt[i];
+
+                    avgwt2 += wt2[i];
+                    avgtat2 += tat2[i];
+
+                    rt2[i] = 0;
+
+                    remain2--;
+                }
+            }
+        }
+    }
+
+    printf("\n----- Round Robin -----\n");
+    printf("Process\tWT\tTAT\n");
+
+    for(i = 0; i < n; i++)
+        printf("P%d\t%d\t%d\n", i+1, wt2[i], tat2[i]);
+
+    printf("Average WT = %.2f\n", avgwt2/n);
+    printf("Average TAT = %.2f\n", avgtat2/n);
+
+    return 0;
+}

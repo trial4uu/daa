@@ -1,0 +1,121 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+void sort(int arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+// Shortest Seek Time First (SSTF)
+void SSTF(int req[], int n, int head) {
+    int visited[n];
+    for (int i = 0; i < n; i++) visited[i] = 0;
+
+    int total = 0, count = 0, curr = head;
+
+    printf("\nSSTF Disk Scheduling Order:\n");
+    while (count < n) {
+        int min = INT_MAX, index = -1;
+        for (int i = 0; i < n; i++) {
+            if (!visited[i]) {
+                int dist = abs(req[i] - curr);
+                if (dist < min) {
+                    min = dist;
+                    index = i;
+                }
+            }
+        }
+        visited[index] = 1;
+        total += abs(req[index] - curr);
+        curr = req[index];
+        printf("%d ", curr);
+        count++;
+    }
+    printf("\nTotal Head Movement (SSTF): %d\n", total);
+}
+
+// SCAN Algorithm (moving away from spindle)
+void SCAN(int req[], int n, int head, int disk_size) {
+    int total = 0;
+    int i, pos = 0;
+    int arr[n + 1];
+
+    for (i = 0; i < n; i++) arr[i] = req[i];
+    arr[n] = head;
+    n++;
+
+    sort(arr, n);
+
+    for (i = 0; i < n; i++) {
+        if (arr[i] == head) {
+            pos = i;
+            break;
+        }
+    }
+
+    printf("\nSCAN Disk Scheduling Order (toward higher tracks):\n");
+    for (i = pos; i < n; i++) printf("%d ", arr[i]);
+    for (i = pos - 1; i >= 0; i--) printf("%d ", arr[i]);
+
+    total = (disk_size - 1 - head) + (disk_size - 1 - arr[0]);
+    printf("\nTotal Head Movement (SCAN): %d\n", total);
+}
+
+// C-LOOK Algorithm (circular look)
+void CLOOK(int req[], int n, int head) {
+    int total = 0;
+    int i, pos = 0;
+    int arr[n + 1];
+
+    for (i = 0; i < n; i++) arr[i] = req[i];
+    arr[n] = head;
+    n++;
+
+    sort(arr, n);
+
+    for (i = 0; i < n; i++) {
+        if (arr[i] == head) {
+            pos = i;
+            break;
+        }
+    }
+
+    printf("\nC-LOOK Disk Scheduling Order (circular, away from spindle):\n");
+    for (i = pos; i < n; i++) printf("%d ", arr[i]);
+    for (i = 0; i < pos; i++) printf("%d ", arr[i]);
+
+    total = (arr[n - 1] - head) + (arr[n - 1] - arr[0]);
+    printf("\nTotal Head Movement (C-LOOK): %d\n", total);
+}
+
+int main() {
+    int n, head, disk_size;
+
+    printf("Enter number of disk requests: ");
+    scanf("%d", &n);
+
+    int req[n];
+    printf("Enter disk request sequence: ");
+    for (int i = 0; i < n; i++) scanf("%d", &req[i]);
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+
+    printf("Enter disk size (number of tracks): ");
+    scanf("%d", &disk_size);
+
+    printf("\n---- Disk Scheduling Simulation ----\n");
+    SSTF(req, n, head);
+    SCAN(req, n, head, disk_size);
+    CLOOK(req, n, head);
+
+    return 0;
+}
