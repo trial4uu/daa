@@ -1,1 +1,0 @@
-This data is loaded using AJAX (Fetch API).
